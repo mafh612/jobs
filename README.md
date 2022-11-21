@@ -1,23 +1,23 @@
 # jobs
 
-## description
-small user management application with a rudimentary frontend to create and edit users
-
-application starts with an admin user
-
-> usr: admin@mail.com
-
-> pwd: admin
-
-there are three levels of roles `guest`, `user` and `admin`
-
-## docker-compose
+## run with make
 ### build
-`make build`
+> `make build`
 
 ### run
-`make start`
+> `make start`
 
 ### shutdown
-`make stop`
+> `make stop`
 # jobs
+
+## run without make
+
+### build image
+> docker build . --tag jobs
+
+### run
+> docker-compose --project-name jobs -f .docker/docker-compose.yml up -d
+
+### stop
+> docker-compose --project-name jobs -f .docker/docker-compose.yml down

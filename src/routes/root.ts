@@ -1,30 +1,33 @@
-import { createReadStream } from 'fs'
+import yaml from 'yaml'
+import { createReadStream, readFileSync } from 'fs'
 import { Context, Next } from 'koa'
 import Router, { Middleware } from '@koa/router'
 
 const root: Middleware = async (ctx: Context, next: Next) => {
-  ctx.body = createReadStream('view/index.html')
+  ctx.body = createReadStream('view/swagger/index.html')
   ctx.set('Content-Type', 'text/html')
 
   return next()
 }
-const app: Middleware = async (ctx: Context, next: Next) => {
-  switch (ctx.url) {
-    case '/app.js':
-      ctx.body = createReadStream('view/app.js')
-      break
-    case '/bootstrap.js':
-      ctx.body = createReadStream('node_modules/bootstrap/dist/js/bootstrap.bundle.min.js')
-      break
-    case '/bootstrap.bundle.min.js.map':
-      ctx.body = createReadStream('node_modules/bootstrap/dist/js/bootstrap.bundle.min.js.map')
-      break
-    default:
-    // do nothing
-  }
-  ctx.set('Content-Type', 'application/javascript')
+
+const resources: Middleware = async (ctx: Context, next: Next) => {
+  ctx.body = createReadStream(`view/swagger${ctx.path.replace('/documentation/ui', '')}`)
+  ctx.set('Content-Type', ctx.path.endsWith('js') ? 'text/javascript' : 'text/css')
 
   return next()
 }
 
-export default new Router().get('/', root).get('/app.js', app).get('/bootstrap.js', app).get('/bootstrap.bundle.min.js.map', app).routes()
+const documenation: Middleware = async (ctx: Context, next: Next) => {
+  ctx.body = yaml.parse(readFileSync('config/api.doc.yml', { encoding: 'utf8' }))
+  ctx.set('Content-Type', 'text/html')
+
+  return next()
+}
+
+export default new Router()
+  .get('/', root)
+  .get('/documentation/ui/swagger-ui.css', resources)
+  .get('/documentation/ui/swagger-ui-bundle.js', resources)
+  .get('/documentation/ui/swagger-ui-standalone-preset.js', resources)
+  .get('/documentation/ui/oaspec.json', documenation)
+  .routes()

@@ -12,35 +12,63 @@ import {
 } from '../../services/mongodb.negotiation.service'
 import { findOneJob } from '../../services/mongodb.job.service'
 import { findOneUser } from '../../services/mongodb.user.service'
-import { Role, Negotiation, Employer, Employee, Job } from '../../../shared'
+import { Role, Negotiation, Employer, Employee, Job, Payload } from '../../../shared'
 import { validateNegotiation } from '../../middlewares/validate'
 import { Filter, ObjectId, WithId } from 'mongodb'
 import { security } from '../../middlewares/security'
+import { HttpStatus } from 'http-enums'
 
-const resolveNegotiation = async (negotiation: Negotiation): Promise<Negotiation> => {
-  const [employer, employee, job]: [Employer, Employee, Job] = await Promise.all([
-    findOneUser({ _id: new ObjectId(negotiation.employer.toString()) }) as unknown as Employer,
-    findOneUser({ _id: new ObjectId(negotiation.employee.toString()) }) as unknown as Employee,
-    findOneJob({ _id: new ObjectId(negotiation.job.toString()) })
-  ])
+const resolveNegotiation: Middleware = async (
+  ctx: Context & { state: { negotiation: Negotiation; negotiations: Negotiation[] } },
+  next: Next
+): Promise<void> => {
+  const resolve = async (negotiation: Negotiation): Promise<Negotiation> => {
+    const [employer, employee, job]: [Employer, Employee, Job] = await Promise.all([
+      findOneUser({ _id: new ObjectId(negotiation.employer.toString()) }) as unknown as Employer,
+      findOneUser({ _id: new ObjectId(negotiation.employee.toString()) }) as unknown as Employee,
+      findOneJob({ _id: new ObjectId(negotiation.job.toString()) })
+    ])
 
-  return { ...negotiation, employer, employee, job }
+    return { ...negotiation, employer, employee, job }
+  }
+
+  if (ctx.state.negotiation) {
+    ctx.body = await resolve(ctx.state.negotiation)
+  } else if (ctx.state.negotiations) {
+    ctx.body = await Promise.all(ctx.state.negotiations.map(resolve))
+  } else {
+    ctx.body = []
+  }
+
+  return next()
 }
 
-const getAll: Middleware = async (ctx: Context, next: Next) => {
+const checkUser: Middleware = async (ctx: Context & { state: { auth: Payload } }, next: Next): Promise<void> => {
   const negotiations: Negotiation[] = await findAllNegotiation({
     $or: [{ employee: ctx.state.auth.jti }, { employer: ctx.state.auth.jti }]
   })
 
-  ctx.body = await Promise.all(negotiations.map(resolveNegotiation))
+  if (
+    negotiations.every((it: Negotiation) => [it.employee, it.employer].includes(ctx.state.auth.jti)) &&
+    ctx.state.auth.role !== Role.ADMIN
+  ) {
+    throw new Error(HttpStatus.FORBIDDEN.toString())
+  }
+
+  return next()
+}
+
+const getAll: Middleware = async (ctx: Context, next: Next) => {
+  ctx.body = ctx.state.negotiations = await findAllNegotiation({
+    $or: [{ employee: ctx.state.auth.jti }, { employer: ctx.state.auth.jti }]
+  })
 
   return next()
 }
 const get: Middleware = async (ctx: Context, next: Next) => {
   const filter: Filter<WithId<Negotiation>> = { _id: new ObjectId(ctx.params.id) }
-  const negotiation: Negotiation = await findOneNegotiation(filter)
 
-  ctx.body = await resolveNegotiation(negotiation)
+  ctx.body = ctx.state.negotiation = await findOneNegotiation(filter)
 
   return next()
 }
@@ -86,9 +114,11 @@ const del: Middleware = async (ctx: Context, next: Next) => {
 export default new Router()
   .prefix('/negotiations')
   .get('/', security(), getAll)
+  .get('/resolved', security(), getAll, resolveNegotiation)
   .get('/:id', security(), get)
-  .post('/', security(Role.EMPLOYEE, Role.EMPLOYER, Role.ADMIN), validateNegotiation, save)
-  .patch('/:id', security(Role.EMPLOYEE, Role.EMPLOYER, Role.ADMIN), validateNegotiation, update)
-  .put('/:id', security(Role.ADMIN), validateNegotiation, replace)
-  .delete('/:id', security(), del)
+  .get('/:id/resolved', security(), get, resolveNegotiation)
+  .post('/', security(), validateNegotiation, save)
+  .patch('/:id', security(), validateNegotiation, checkUser, update)
+  .put('/:id', security(), validateNegotiation, checkUser, replace)
+  .delete('/:id', security(), checkUser, del)
   .routes()

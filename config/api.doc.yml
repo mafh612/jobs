@@ -1,0 +1,436 @@
+openapi: 3.0.1
+info:
+  title: jobs api
+  description: >-
+    browse for jobx
+  version: '1'
+tags:
+  - name: jobs
+  - name: users
+  - name: negotiations
+paths:
+  '/api/users':
+    get:
+      tags:
+        - users
+      description: get all
+      responses:
+        '200':
+          $ref: '#/components/responses/UsersResponse'
+      security:
+        - Authorization: []
+    post:
+      tags:
+        - users
+      description: add job
+      responses:
+        '200':
+          $ref: '#/components/responses/InsertResponse'
+      security:
+        - Authorization: []
+  '/api/users/{email}':
+    get:
+      tags:
+        - users
+      description: get one
+      parameters:
+       - $ref: '#/components/parameters/email'
+      responses:
+        '200':
+          $ref: '#/components/responses/UserResponse'
+      security:
+        - Authorization: []
+    put:
+      tags:
+        - users
+      description: replace one
+      parameters:
+       - $ref: '#/components/parameters/email'
+      responses:
+        '200':
+          $ref: '#/components/responses/UsersResponse'
+      security:
+        - Authorization: []
+    patch:
+      tags:
+        - users
+      description: update one
+      parameters:
+       - $ref: '#/components/parameters/email'
+      responses:
+        '200':
+          $ref: '#/components/responses/UsersResponse'
+      security:
+        - Authorization: []
+    delete:
+      tags:
+        - users
+      description: delete one
+      parameters:
+       - $ref: '#/components/parameters/email'
+      responses:
+        '200':
+          $ref: '#/components/responses/DeleteResponse'
+      security:
+        - Authorization: []
+  '/api/jobs':
+    get:
+      tags:
+        - jobs
+      description: get all
+      responses:
+        '200':
+          $ref: '#/components/responses/JobsResponse'
+      security:
+        - Authorization: []
+    post:
+      tags:
+        - jobs
+      description: add job
+      responses:
+        '200':
+          $ref: '#/components/responses/InsertResponse'
+      security:
+        - Authorization: []
+  '/api/jobs/{id}':
+    get:
+      tags:
+        - jobs
+      description: get one
+      parameters:
+       - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/JobResponse'
+      security:
+        - Authorization: []
+    put:
+      tags:
+        - jobs
+      description: replace one
+      parameters:
+       - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/UsersResponse'
+      security:
+        - Authorization: []
+    patch:
+      tags:
+        - jobs
+      description: update one
+      parameters:
+       - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/UsersResponse'
+      security:
+        - Authorization: []
+    delete:
+      tags:
+        - jobs
+      description: delete one
+      parameters:
+       - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/DeleteResponse'
+      security:
+        - Authorization: []
+  '/api/negotiations':
+    get:
+      tags:
+        - negotiations
+      description: get all
+      responses:
+        '200':
+          $ref: '#/components/responses/NegotiationsResponse'
+      security:
+        - Authorization: []
+    post:
+      tags:
+        - negotiations
+      description: add job
+      responses:
+        '200':
+          $ref: '#/components/responses/InsertResponse'
+      security:
+        - Authorization: []
+  '/api/negotiations/resolved':
+    get:
+      tags:
+        - negotiations
+      description: get all
+      responses:
+        '200':
+          $ref: '#/components/responses/NegotiationsResponse'
+      security:
+        - Authorization: []
+  '/api/negotiations/{id}':
+    get:
+      tags:
+        - negotiations
+      description: get one
+      parameters:
+       - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/NegotiationResponse'
+      security:
+        - Authorization: []
+    put:
+      tags:
+        - negotiations
+      description: replace one
+      parameters:
+       - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/UsersResponse'
+      security:
+        - Authorization: []
+    patch:
+      tags:
+        - negotiations
+      description: update one
+      parameters:
+       - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/UsersResponse'
+      security:
+        - Authorization: []
+    delete:
+      tags:
+        - negotiations
+      description: delete one
+      parameters:
+       - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/DeleteResponse'
+      security:
+        - Authorization: []
+  '/api/negotiations/{id}/resolved':
+    get:
+      tags:
+        - negotiations
+      description: get one
+      parameters:
+       - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/NegotiationResponse'
+      security:
+        - Authorization: []
+components:
+  parameters:
+    email:
+      name: email
+      in: path
+      description: email address
+      required: true
+      schema:
+        type: string
+    id:
+      name: id
+      in: path
+      description: item id
+      required: true
+      schema:
+        type: string
+  requestBodies:
+    RecipientRequestData:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/User'
+  responses:
+    UsersResponse:
+      description: UsersResponse
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/User'
+    UserResponse:
+      description: UserResponse
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/User'
+    JobsResponse:
+      description: JobsResponse
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Job'
+    JobResponse:
+      description: JobResponse
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Job'
+    NegotiationsResponse:
+      description: NegotiationsResponse
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Negotiation'
+    NegotiationResponse:
+      description: NegotiationResponse
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Negotiation'
+    InsertResponse:
+      description: InsertResponse
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InsertResult'
+    ReplaceResponse:
+      description: ReplaceResponse
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ReplaceResult'
+    UpdateResponse:
+      description: UpdateResponse
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UpdateResult'
+    DeleteResponse:
+      description: DeleteResponse
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DeleteResult'
+  schemas:
+    InsertResult:
+      type: object
+      properties:
+        ackknowledged:
+          type: boolean
+        insertedId:
+          type: string
+    ReplaceResult:
+      type: object
+      properties:
+        acknowledged:
+          type: boolean
+        matchedCount:
+          type: number
+        modifiedCount:
+          type: number
+        upsertedCount:
+          type: number
+        upsertedId:
+          type: string
+    UpdateResult:
+      type: object
+      properties:
+        acknowledged:
+          type: boolean
+        matchedCount:
+          type: number
+        modifiedCount:
+          type: number
+        upsertedCount:
+          type: number
+        upsertedId:
+          type: string
+    DeleteResult:
+      type: object
+      properties:
+        ackknowledged:
+          type: boolean
+        deletedCount:
+          type: number
+    User:
+      type: object
+      properties:
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+        firstname:
+          type: string
+        lastname:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum:
+            - employer
+            - employee
+            - admin
+        company:
+          type: string
+        profile:
+          type: string
+      required:
+        - firstname
+        - lastname
+        - email
+        - role
+    Job:
+      type: object
+      properties:
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+        description:
+          type: string
+        employer:
+          type: string
+        name:
+          type: string
+        requirements:
+          type: string
+      required:
+        - description
+        - employer
+        - name
+        - requirements
+    Negotiation:
+      type: object
+      properties:
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+        employer:
+          type: string
+        employee:
+          type: string
+        job:
+          type: string
+        hasApplied:
+          type: boolean
+        isInvited:
+          type: boolean
+        hasAccepted:
+          type: boolean
+      required:
+        - employer
+        - employee
+        - job
+  securitySchemes:
+    Authorization:
+      type: http
+      scheme: jwt

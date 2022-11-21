@@ -2,10 +2,21 @@ import { Context, Next } from 'koa'
 import Router, { Middleware } from '@koa/router'
 
 import { findAllJob, createJob, deleteJob, findOneJob, replaceJob, updateJob } from '../../services/mongodb.job.service'
-import { Role, Job } from '../../../shared'
+import { Role, Job, Payload } from '../../../shared'
 import { validateJob } from '../../middlewares/validate'
 import { ObjectId } from 'mongodb'
 import { security } from '../../middlewares/security'
+import { HttpStatus } from 'http-enums'
+
+const checkUser: Middleware = async (ctx: Context & { state: { auth: Payload } }, next: Next): Promise<void> => {
+  const jobs: Job[] = await findAllJob({ employer: ctx.state.auth.jti })
+
+  if (jobs.every((it: Job) => it.employer === ctx.state.auth.jti) && ctx.state.auth.role !== Role.ADMIN) {
+    throw new Error(HttpStatus.FORBIDDEN.toString())
+  }
+
+  return next()
+}
 
 const getAll: Middleware = async (ctx: Context, next: Next) => {
   ctx.body = await findAllJob({})
@@ -55,7 +66,7 @@ export default new Router()
   .get('/', security(), getAll)
   .get('/:id', security(), get)
   .post('/', security(Role.EMPLOYER, Role.ADMIN), validateJob, save)
-  .patch('/:id', security(Role.EMPLOYER, Role.ADMIN), validateJob, update)
-  .put('/:id', security(Role.EMPLOYER, Role.ADMIN), validateJob, replace)
-  .delete('/:id', security(Role.EMPLOYER, Role.ADMIN), del)
+  .patch('/:id', security(Role.EMPLOYER, Role.ADMIN), validateJob, checkUser, update)
+  .put('/:id', security(Role.EMPLOYER, Role.ADMIN), validateJob, checkUser, replace)
+  .delete('/:id', security(Role.EMPLOYER, Role.ADMIN), checkUser, del)
   .routes()
