@@ -1,0 +1,80 @@
+- name: User
+  schema:
+    type: object
+    properties:
+      created:
+        type: string
+        format: date-time
+      updated:
+        type: string
+        format: date-time
+      firstname:
+        type: string
+      lastname:
+        type: string
+      email:
+        type: string
+      role:
+        type: string
+        enum:
+          - employer
+          - employee
+          - admin
+      company:
+        type: string
+      profile:
+        type: string
+    required:
+      - firstname
+      - lastname
+      - email
+      - role
+- name: Job
+  schema:
+    type: object
+    properties:
+      created:
+        type: string
+        format: date-time
+      updated:
+        type: string
+        format: date-time
+      description:
+        type: string
+      employer:
+        type: string
+      name:
+        type: string
+      requirements:
+        type: string
+    required:
+      - description
+      - employer
+      - name
+      - requirements
+- name: Negotiation
+  schema:
+    type: object
+    properties:
+      created:
+        type: string
+        format: date-time
+      updated:
+        type: string
+        format: date-time
+      employer:
+        type: string
+      employee:
+        type: string
+      job:
+        type: string
+      hasApplied:
+        type: boolean
+      isInvited:
+        type: boolean
+      hasAccepted:
+        type: boolean
+    required:
+      - employer
+      - employee
+      - job
