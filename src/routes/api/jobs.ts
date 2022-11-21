@@ -4,15 +4,15 @@ import Router, { Middleware } from '@koa/router'
 import { findAllJob, createJob, deleteJob, findOneJob, replaceJob, updateJob } from '../../services/mongodb.job.service'
 import { Role, Job, Payload } from '../../../shared'
 import { validateJob } from '../../middlewares/validate'
-import { ObjectId } from 'mongodb'
+import { ObjectId, WithId } from 'mongodb'
 import { security } from '../../middlewares/security'
-import { HttpStatus } from 'http-enums'
+import { ForbiddenError } from '../../utils/forbidden.error'
 
 const checkUser: Middleware = async (ctx: Context & { state: { auth: Payload } }, next: Next): Promise<void> => {
-  const jobs: Job[] = await findAllJob({ employer: ctx.state.auth.jti })
+  const jobs: WithId<Job>[] = (await findAllJob({ employer: ctx.state.auth.jti })) as WithId<Job>[]
 
-  if (jobs.every((it: Job) => it.employer === ctx.state.auth.jti) && ctx.state.auth.role !== Role.ADMIN) {
-    throw new Error(HttpStatus.FORBIDDEN.toString())
+  if (!jobs.some((it: WithId<Job>) => it._id.toString() === ctx.params.id) && ctx.state.auth.role !== Role.ADMIN) {
+    throw new ForbiddenError()
   }
 
   return next()

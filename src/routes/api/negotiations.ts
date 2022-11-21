@@ -16,7 +16,19 @@ import { Role, Negotiation, Employer, Employee, Job, Payload } from '../../../sh
 import { validateNegotiation } from '../../middlewares/validate'
 import { Filter, ObjectId, WithId } from 'mongodb'
 import { security } from '../../middlewares/security'
-import { HttpStatus } from 'http-enums'
+import { ForbiddenError } from '../../utils/forbidden.error'
+
+const checkUser: Middleware = async (ctx: Context & { state: { auth: Payload } }, next: Next): Promise<void> => {
+  const negotiations: WithId<Negotiation>[] = (await findAllNegotiation({
+    $or: [{ employee: ctx.state.auth.jti }, { employer: ctx.state.auth.jti }]
+  })) as WithId<Negotiation>[]
+
+  if (!negotiations.some((it: WithId<Negotiation>) => it._id.toString() === ctx.params.id) && ctx.state.auth.role !== Role.ADMIN) {
+    throw new ForbiddenError()
+  }
+
+  return next()
+}
 
 const resolveNegotiation: Middleware = async (
   ctx: Context & { state: { negotiation: Negotiation; negotiations: Negotiation[] } },
@@ -38,21 +50,6 @@ const resolveNegotiation: Middleware = async (
     ctx.body = await Promise.all(ctx.state.negotiations.map(resolve))
   } else {
     ctx.body = []
-  }
-
-  return next()
-}
-
-const checkUser: Middleware = async (ctx: Context & { state: { auth: Payload } }, next: Next): Promise<void> => {
-  const negotiations: Negotiation[] = await findAllNegotiation({
-    $or: [{ employee: ctx.state.auth.jti }, { employer: ctx.state.auth.jti }]
-  })
-
-  if (
-    negotiations.every((it: Negotiation) => [it.employee, it.employer].includes(ctx.state.auth.jti)) &&
-    ctx.state.auth.role !== Role.ADMIN
-  ) {
-    throw new Error(HttpStatus.FORBIDDEN.toString())
   }
 
   return next()

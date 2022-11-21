@@ -6,11 +6,11 @@ import { Payload, Role, User } from '../../../shared'
 import { validateUser } from '../../middlewares/validate'
 import { Filter, WithId } from 'mongodb'
 import { security } from '../../middlewares/security'
-import { HttpStatus } from 'http-enums'
+import { ForbiddenError } from '../../utils/forbidden.error'
 
 const checkUser: Middleware = (ctx: Context & { state: { auth: Payload } }, next: Next) => {
   if (ctx.params.email !== ctx.state.auth.sub && ctx.state.auth.role !== Role.ADMIN) {
-    throw new Error(HttpStatus.FORBIDDEN.toString())
+    throw new ForbiddenError()
   }
 
   return next()
@@ -46,10 +46,6 @@ const update: Middleware = async (ctx: Context, next: Next) => {
 const replace: Middleware = async (ctx: Context, next: Next) => {
   const email: string = ctx.params.email
   const doc: User = ctx.request.body as User
-
-  if (email !== ctx.state.auth.sub && ctx.state.auth.role !== Role.ADMIN) {
-    throw new Error(HttpStatus.FORBIDDEN.toString())
-  }
 
   ctx.body = await replaceUser({ email }, doc)
 
