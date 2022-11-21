@@ -8,10 +8,10 @@ services:
       dockerfile: Dockerfile
     user: root
     environment:
-      MONGO_DB_CONNECTION_URI: 'mongodb://usr_mngmnt:usr_mngmnt@mongodb:27017/admin?connectTimeoutMS=2000'
-      MONGO_DB_DATABASE_NAME: jobs
-      MONGO_DB_USER_COLLECTION_NAME: users
-      BE_PORT: 3000
+      MONGO_DB_CONNECTION_URI: 'mongodb://jobs:jobs@mongodb:27017/admin?connectTimeoutMS=2000'
+      MONGO_DB_DATABASE_NAME: 'jobs'
+      PORT: '3000'
+      SIGN_KEY: 'very_secret_key'
     ports:
       - 3000:3000
 
