@@ -1,19 +1,19 @@
 version: '3.7'
 
 services:
-  # application:
-    # image: jobs:latest
-    # build:
-    #   context: ../
-    #   dockerfile: Dockerfile
-    # user: root
-    # environment:
-    #   MONGO_DB_CONNECTION_URI: 'mongodb://usr_mngmnt:usr_mngmnt@mongodb:27017/admin?connectTimeoutMS=2000'
-    #   MONGO_DB_DATABASE_NAME: jobs
-    #   MONGO_DB_USER_COLLECTION_NAME: users
-    #   BE_PORT: 3000
-    # ports:
-    #   - 3000:3000
+  application:
+    image: jobs:latest
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    user: root
+    environment:
+      MONGO_DB_CONNECTION_URI: 'mongodb://usr_mngmnt:usr_mngmnt@mongodb:27017/admin?connectTimeoutMS=2000'
+      MONGO_DB_DATABASE_NAME: jobs
+      MONGO_DB_USER_COLLECTION_NAME: users
+      BE_PORT: 3000
+    ports:
+      - 3000:3000
 
   mongodb:
     image: mongo:4

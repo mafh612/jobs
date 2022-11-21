@@ -15,5 +15,5 @@ export default async (): Promise<void> => {
   await mongoClient.db(process.env.MONGO_DB_DATABASE_NAME).collection(Collections.MONGO_DB_USER_COLLECTION_NAME).drop()
   mongoClient.close()
 
-  execSync('docker-compose --project-name jobs -f .docker/docker-compose.yml down')
+  execSync('docker-compose --project-name jobs-it -f .docker/docker-compose.it.yml down')
 }

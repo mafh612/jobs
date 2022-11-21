@@ -15,7 +15,7 @@ export default async (): Promise<void> => {
   process.env.PORT = '3000'
   process.env.SIGN_KEY = 'very_secret_key'
 
-  execSync('docker-compose --project-name jobs -f .docker/docker-compose.yml up -d')
+  execSync('docker-compose --project-name jobs-it -f .docker/docker-compose.it.yml up -d')
   const mongoClient: MongoClient = await runMongoDb().then((it: MongoClient) => {
     process.stdout.write('mongodb running')
 

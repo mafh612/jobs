@@ -1,5 +1,5 @@
 build-app:
-	yarn --silent && yarn build && NODE_ENV=production yarn webpack
+	yarn --silent && yarn build
 build-image:
 	docker build . --tag jobs
 
